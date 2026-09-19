@@ -1,0 +1,34 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'ru.vit4liy.perm'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation files('libs/module-lib.jar')
+    implementation files('libs/it72h-config-lib-1.3.jar')
+}
+
+jar {
+    archiveBaseName = 'perm-lib'
+    archiveVersion = version
+    archiveClassifier = ''
+
+    manifest {
+        attributes(
+                'Implementation-Title': 'Vit4liy\'s RBAC/ABAC lib',
+                'Implementation-Version': version
+        )
+    }
+}
