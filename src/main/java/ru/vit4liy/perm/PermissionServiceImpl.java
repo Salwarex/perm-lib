@@ -4,13 +4,14 @@ import ru.vit4liy.it72h.lib.config.Config;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 class PermissionServiceImpl implements PermissionService {
     private final Config config;
-    private final Map<String, PermissionTreeUnit> groupTrees = new HashMap<>();
+    private final Map<String, PermissionTreeUnit> groupTrees = new ConcurrentHashMap<>();
 
     public PermissionServiceImpl() {
-        this.config = new Config("tickets-config/groups.yml");
+        this.config = new Config("permission/groups.yml");
         try{
             this.config.load();
         } catch (IOException e) {
@@ -80,7 +81,6 @@ class PermissionServiceImpl implements PermissionService {
         String key = permissible.getGroupKey();
         if (key == null || key.isEmpty()) return false;
 
-
         PermissionTreeUnit tree = groupTrees.get(key);
 
         if (tree == null) {
@@ -92,6 +92,12 @@ class PermissionServiceImpl implements PermissionService {
         }
 
         return tree.hasPermission(permission);
+    }
+
+    public void checkPermissions(Permissible permissible, String ... permissions) throws MissingPermissionException{
+        for(String permission : permissions){
+            if(!hasPermission(permissible, permission)) throw new MissingPermissionException(permission);
+        }
     }
 
     @Override

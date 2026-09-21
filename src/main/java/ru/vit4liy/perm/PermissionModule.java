@@ -1,12 +1,24 @@
 package ru.vit4liy.perm;
 
 import ru.vit4liy.modular.Module;
+import ru.vit4liy.modular.ModuleLoader;
 import ru.vit4liy.modular.exception.ModuleInitializeException;
 import ru.vit4liy.modular.exception.ModuleShutdownException;
 
-public class PermissionModule implements Module {
+import java.util.Set;
+
+public class PermissionModule extends Module {
 
     private PermissionService permissionService;
+
+    public PermissionModule(ModuleLoader loader) {
+        super(loader);
+    }
+
+    @Override
+    protected Set<Class<? extends Module>> dependencies() {
+        return Set.of();
+    }
 
     @Override
     public void initialize() throws ModuleInitializeException {
@@ -16,7 +28,7 @@ public class PermissionModule implements Module {
     @Override
     public void shutdown() throws ModuleShutdownException {}
 
-    public PermissionService getPermissionService() {
+    public synchronized PermissionService getPermissionService() {
         return permissionService;
     }
 

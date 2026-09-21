@@ -11,4 +11,5 @@ public interface PermissionService {
     boolean isExists(String role);
     void reload();
     Config getPermissionConfig();
+    void checkPermissions(Permissible permissible, String ... permissions) throws MissingPermissionException;
 }
