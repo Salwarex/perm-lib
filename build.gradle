@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'ru.vit4liy.perm'
-version = '1.3'
+version = '1.3.1'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     implementation files('libs/module-lib-1.2a.jar')
-    implementation files('libs/it72h-config-lib-1.3.jar')
+    implementation files('libs/config-lib-1.3.1.jar')
 }
 
 jar {

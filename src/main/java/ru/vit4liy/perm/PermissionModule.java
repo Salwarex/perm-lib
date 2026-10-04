@@ -5,14 +5,22 @@ import ru.vit4liy.modular.ModuleLoader;
 import ru.vit4liy.modular.exception.ModuleInitializeException;
 import ru.vit4liy.modular.exception.ModuleShutdownException;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 public class PermissionModule extends Module {
 
     private PermissionService permissionService;
+    private final Path basePath;
 
     public PermissionModule(ModuleLoader loader) {
+        this(loader, Paths.get(System.getProperty("user.dir")));
+    }
+
+    public PermissionModule(ModuleLoader loader, Path basePath) {
         super(loader);
+        this.basePath = basePath;
     }
 
     @Override
@@ -22,7 +30,8 @@ public class PermissionModule extends Module {
 
     @Override
     public void initialize() throws ModuleInitializeException {
-        permissionService = new PermissionServiceImpl();
+        // Передаем путь в сервис
+        permissionService = new PermissionServiceImpl(basePath);
     }
 
     @Override

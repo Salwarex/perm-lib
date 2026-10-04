@@ -3,6 +3,8 @@ package ru.vit4liy.perm;
 import ru.vit4liy.it72h.lib.config.Config;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +13,12 @@ class PermissionServiceImpl implements PermissionService {
     private final Map<String, PermissionTreeUnit> groupTrees = new ConcurrentHashMap<>();
 
     public PermissionServiceImpl() {
-        this.config = new Config("permission/groups.yml");
+        this(Paths.get(System.getProperty("user.dir")));
+    }
+
+    public PermissionServiceImpl(Path basePath) {
+        Path configFilePath = basePath.resolve("permission/groups.yml");
+        this.config = new Config(configFilePath, "permission/groups.yml");
         try{
             this.config.load();
         } catch (IOException e) {
@@ -23,7 +30,7 @@ class PermissionServiceImpl implements PermissionService {
     private void buildAllTrees() {
         Set<String> groups = config.getConfigurationSection("groups").getKeys();
         if (groups == null || groups.isEmpty()) {
-            System.out.println("[Tickets] 'groups' section in groups.yml is empty.");
+            System.out.println("'groups' section in groups.yml is empty.");
             return;
         }
 
@@ -32,32 +39,22 @@ class PermissionServiceImpl implements PermissionService {
         }
     }
 
-
     private Set<String> getAllPermissionsRecursive(String groupKey, Set<String> visited) {
-        if (visited.contains(groupKey)) {
-            return Collections.emptySet();
-        }
+        if (visited.contains(groupKey)) return Collections.emptySet();
         visited.add(groupKey);
 
         Set<String> permissions = new HashSet<>(config.getStringList("groups." + groupKey + ".permissions"));
-
         List<String> inherits = config.getStringList("groups." + groupKey + ".inherits");
         for (String parentGroup : inherits) {
             permissions.addAll(getAllPermissionsRecursive(parentGroup, visited));
         }
-
         return permissions;
     }
 
     private PermissionTreeUnit buildTreeForGroup(String groupKey, Set<String> visited) {
         PermissionTreeUnit tree = new PermissionTreeUnit();
-
         Set<String> allPermissions = getAllPermissionsRecursive(groupKey, new HashSet<>(visited));
-
-        for (String perm : allPermissions) {
-            tree.addPermission(perm);
-        }
-
+        for (String perm : allPermissions) tree.addPermission(perm);
         return tree;
     }
 
@@ -77,12 +74,10 @@ class PermissionServiceImpl implements PermissionService {
 
     public boolean hasPermission(Permissible permissible, String permission) {
         if (permission == null || permission.isEmpty()) return false;
-
         String key = permissible.getGroupKey();
         if (key == null || key.isEmpty()) return false;
 
         PermissionTreeUnit tree = groupTrees.get(key);
-
         if (tree == null) {
             tree = groupTrees.get("default");
             if (tree == null) {
@@ -90,7 +85,6 @@ class PermissionServiceImpl implements PermissionService {
                 return false;
             }
         }
-
         return tree.hasPermission(permission);
     }
 
@@ -116,7 +110,5 @@ class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Config getPermissionConfig() {
-        return config;
-    }
+    public Config getPermissionConfig() { return config; }
 }
